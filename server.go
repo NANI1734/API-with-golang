@@ -3,11 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -55,20 +53,7 @@ var Items = allItems{
 
 func HomePage(w http.ResponseWriter, r *http.Request) {
 
-	now := time.Now()              // find the time right now
-	HomePageVars := PageVariables{ //store the date and time in a struct
-		Date: now.Format("02-01-2006"),
-		Time: now.Format("15:04:05"),
-	}
-
-	t, err := template.ParseFiles("home.html") //parse the html file homepage.html
-	if err != nil {                            // if there is an error
-		log.Print("template parsing error: ", err) // log it
-	}
-	err = t.Execute(w, HomePageVars) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil {                  // if there is an error
-		log.Print("template executing error: ", err) //log it
-	}
+	fmt.Fprintf(w, "hello there read the docs")
 }
 
 func createItem(w http.ResponseWriter, r *http.Request) {
@@ -144,12 +129,14 @@ func deleteItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	fmt.Printf("Api is fired up at http://localhost:8080")
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", HomePage)
-	router.HandleFunc("/add-item", createItem).Methods("POST")
-	router.HandleFunc("/store", getAllItems).Methods("GET")
-	router.HandleFunc("/item/{id}", getOneItem).Methods("GET")
-	router.HandleFunc("/item/{id}", updateItem).Methods("PATCH")
-	router.HandleFunc("/item/{id}", deleteItem).Methods("DELETE")
+	router.HandleFunc("/api/v1/add-item", createItem).Methods("POST")
+	router.HandleFunc("/api/v1/store", getAllItems).Methods("GET")
+	router.HandleFunc("/api/v1/item/{id}", getOneItem).Methods("GET")
+	router.HandleFunc("/api/v1/item/{id}", updateItem).Methods("PATCH")
+	router.HandleFunc("/api/v1/item/{id}", deleteItem).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8080", router))
+
 }
